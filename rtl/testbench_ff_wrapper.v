@@ -103,6 +103,7 @@ always@(posedge clk) begin
 end
 
 reg [55:0] cycle_str;
+
 //=============================
 // Dump Fault Free Value
 //=============================
@@ -128,16 +129,16 @@ always@(posedge clk) begin
     if(cycle>=0)begin
       cycle2num(cycle,cycle_str);
       ffi_f = $fopen({"ff_value/ff_value_C",cycle_str,".txt"},"w");
-      $fwrite(ffi_f,"%b\n",top.uut.mem_valid);
-      $fwrite(ffi_f,"%b\n",top.uut.mem_addr);
-      $fwrite(ffi_f,"%b\n",top.uut.mem_wdata);
-      $fwrite(ffi_f,"%b\n",top.uut.mem_wstrb);
-      $fwrite(ffi_f,"%b\n",top.uut.mem_instr);
       $fwrite(ffi_f,"%b\n",top.uut.axi_adapter.ack_awvalid);
       $fwrite(ffi_f,"%b\n",top.uut.axi_adapter.ack_arvalid);
       $fwrite(ffi_f,"%b\n",top.uut.axi_adapter.ack_wvalid);
       $fwrite(ffi_f,"%b\n",top.uut.axi_adapter.xfer_done);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.trap_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_valid_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_instr_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_addr_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_wdata_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_wstrb_reg);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.pcpi_valid_reg);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.pcpi_insn_reg);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.eoi_reg);
@@ -194,10 +195,6 @@ always@(posedge clk) begin
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.cpuregs[33]);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.cpuregs[34]);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.cpuregs[35]);
-      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.pcpi_div_wr);
-      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.pcpi_div_rd);
-      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.pcpi_div_wait);
-      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.pcpi_div_ready);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_state);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_wordsize);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.mem_rdata_q);
@@ -329,6 +326,10 @@ always@(posedge clk) begin
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk1.pcpi_mul.rd);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk1.pcpi_mul.rd_q);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk1.pcpi_mul.pcpi_insn_valid_q);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_wr_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_rd_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_wait_reg);
+      $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_ready_reg);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.instr_div);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.instr_divu);
       $fwrite(ffi_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.instr_rem);
@@ -367,16 +368,16 @@ always@(posedge clk) begin
     if(cycle>0)begin
       cycle2num(cycle,cycle_str);
       go_f = $fopen({"golden_value/golden_value_C",cycle_str,".txt"},"w");
-      $fwrite(go_f,"%b\n",top.uut.mem_valid);
-      $fwrite(go_f,"%b\n",top.uut.mem_addr);
-      $fwrite(go_f,"%b\n",top.uut.mem_wdata);
-      $fwrite(go_f,"%b\n",top.uut.mem_wstrb);
-      $fwrite(go_f,"%b\n",top.uut.mem_instr);
       $fwrite(go_f,"%b\n",top.uut.axi_adapter.ack_awvalid);
       $fwrite(go_f,"%b\n",top.uut.axi_adapter.ack_arvalid);
       $fwrite(go_f,"%b\n",top.uut.axi_adapter.ack_wvalid);
       $fwrite(go_f,"%b\n",top.uut.axi_adapter.xfer_done);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.trap_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_valid_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_instr_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_addr_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_wdata_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_wstrb_reg);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.pcpi_valid_reg);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.pcpi_insn_reg);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.eoi_reg);
@@ -433,10 +434,6 @@ always@(posedge clk) begin
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.cpuregs[33]);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.cpuregs[34]);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.cpuregs[35]);
-      $fwrite(go_f,"%b\n",top.uut.picorv32_core.pcpi_div_wr);
-      $fwrite(go_f,"%b\n",top.uut.picorv32_core.pcpi_div_rd);
-      $fwrite(go_f,"%b\n",top.uut.picorv32_core.pcpi_div_wait);
-      $fwrite(go_f,"%b\n",top.uut.picorv32_core.pcpi_div_ready);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_state);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_wordsize);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.mem_rdata_q);
@@ -568,6 +565,10 @@ always@(posedge clk) begin
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk1.pcpi_mul.rd);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk1.pcpi_mul.rd_q);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk1.pcpi_mul.pcpi_insn_valid_q);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_wr_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_rd_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_wait_reg);
+      $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.pcpi_ready_reg);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.instr_div);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.instr_divu);
       $fwrite(go_f,"%b\n",top.uut.picorv32_core.genblk2.pcpi_div.instr_rem);

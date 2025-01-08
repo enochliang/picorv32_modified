@@ -60,12 +60,28 @@ module picorv32 (
 	output wire trap;
 	assign trap = trap_reg;
 
-	output reg mem_valid;
-	output reg mem_instr;
+	reg mem_valid_reg;
+	output wire mem_valid;
+	assign mem_valid = mem_valid_reg;
+
+	reg mem_instr_reg;
+	output wire mem_instr;
+	assign mem_instr = mem_instr_reg;
+
 	input mem_ready;
-	output reg [31:0] mem_addr;
-	output reg [31:0] mem_wdata;
-	output reg [3:0] mem_wstrb;
+
+	reg [31:0] mem_addr_reg;
+	output wire [31:0] mem_addr;
+	assign mem_addr = mem_addr_reg;
+
+	reg [31:0] mem_wdata_reg;
+	output wire [31:0] mem_wdata;
+	assign mem_wdata = mem_wdata_reg;
+
+	reg [3:0] mem_wstrb_reg;
+	output wire [3:0] mem_wstrb;
+	assign mem_wstrb = mem_wstrb_reg;
+
 	input [31:0] mem_rdata;
 	output wire mem_la_read;
 	output wire mem_la_write;
@@ -452,41 +468,41 @@ module picorv32 (
 			if (!resetn)
 				mem_state <= 0;
 			if (!resetn || mem_ready)
-				mem_valid <= 0;
+				mem_valid_reg <= 0;
 			mem_la_secondword <= 0;
 			prefetched_high_word <= 0;
 		end
 		else begin
 			if (mem_la_read || mem_la_write) begin
-				mem_addr <= mem_la_addr;
-				mem_wstrb <= mem_la_wstrb & {4 {mem_la_write}};
+				mem_addr_reg <= mem_la_addr;
+				mem_wstrb_reg <= mem_la_wstrb & {4 {mem_la_write}};
 			end
 			if (mem_la_write)
-				mem_wdata <= mem_la_wdata;
+				mem_wdata_reg <= mem_la_wdata;
 			case (mem_state)
 				0: begin
 					if ((mem_do_prefetch || mem_do_rinst) || mem_do_rdata) begin
-						mem_valid <= !mem_la_use_prefetched_high_word;
-						mem_instr <= mem_do_prefetch || mem_do_rinst;
-						mem_wstrb <= 0;
+						mem_valid_reg <= !mem_la_use_prefetched_high_word;
+						mem_instr_reg <= mem_do_prefetch || mem_do_rinst;
+						mem_wstrb_reg <= 0;
 						mem_state <= 1;
 					end
 					if (mem_do_wdata) begin
-						mem_valid <= 1;
-						mem_instr <= 0;
+						mem_valid_reg <= 1;
+						mem_instr_reg <= 0;
 						mem_state <= 2;
 					end
 				end
 				1: begin
 					if (mem_xfer) begin
 						if (COMPRESSED_ISA && mem_la_read) begin
-							mem_valid <= 1;
+							mem_valid_reg <= 1;
 							mem_la_secondword <= 1;
 							if (!mem_la_use_prefetched_high_word)
 								mem_16bit_buffer <= mem_rdata[31:16];
 						end
 						else begin
-							mem_valid <= 0;
+							mem_valid_reg <= 0;
 							mem_la_secondword <= 0;
 							if (COMPRESSED_ISA && !mem_do_rdata) begin
 								if (~&mem_rdata[1:0] || mem_la_secondword) begin
@@ -502,7 +518,7 @@ module picorv32 (
 				end
 				2: begin
 					if (mem_xfer) begin
-						mem_valid <= 0;
+						mem_valid_reg <= 0;
 						mem_state <= 0;
 					end
 				end
@@ -2538,10 +2554,23 @@ module picorv32_pcpi_div (
 	input [31:0] pcpi_insn;
 	input [31:0] pcpi_rs1;
 	input [31:0] pcpi_rs2;
-	output reg pcpi_wr;
-	output reg [31:0] pcpi_rd;
-	output reg pcpi_wait;
-	output reg pcpi_ready;
+
+	reg pcpi_wr_reg;
+	output wire pcpi_wr;
+	assign pcpi_wr = pcpi_wr_reg;
+
+	reg [31:0] pcpi_rd_reg;
+	output wire [31:0] pcpi_rd;
+	assign pcpi_rd = pcpi_rd_reg;
+
+	reg pcpi_wait_reg;
+	output wire pcpi_wait;
+	assign pcpi_wait = pcpi_wait_reg;
+
+	reg pcpi_ready_reg;
+	output wire pcpi_ready;
+	assign pcpi_ready = pcpi_ready_reg;
+
 	reg instr_div;
 	reg instr_divu;
 	reg instr_rem;
@@ -2578,7 +2607,7 @@ module picorv32_pcpi_div (
 			endcase
 	end
 	always @(posedge clk) begin
-		pcpi_wait <= instr_any_div_rem && resetn;
+		pcpi_wait_reg <= instr_any_div_rem && resetn;
 	end
 	always @(posedge clk) begin
 		pcpi_wait_q <= pcpi_wait && resetn;
@@ -2591,28 +2620,28 @@ module picorv32_pcpi_div (
 	reg outsign;
 	always @(posedge clk) begin
 		if (!quotient_msk && running) begin
-			pcpi_ready <= 1;
+			pcpi_ready_reg <= 1;
 		end else begin
-			pcpi_ready <= 0;
+			pcpi_ready_reg <= 0;
 		end
 	end
 	always @(posedge clk) begin
 		if (!quotient_msk && running) begin
-			pcpi_wr <= 1;
+			pcpi_wr_reg <= 1;
 		end
 		else begin
-			pcpi_wr <= 0;
+			pcpi_wr_reg <= 0;
 		end
 	end
 	always @(posedge clk) begin
 		if (!quotient_msk && running) begin
 			if (instr_div || instr_divu)
-				pcpi_rd <= (outsign ? -quotient : quotient);
+				pcpi_rd_reg <= (outsign ? -quotient : quotient);
 			else
-				pcpi_rd <= (outsign ? -dividend : dividend);
+				pcpi_rd_reg <= (outsign ? -dividend : dividend);
 		end
 		else begin
-			pcpi_rd <= 'bx;
+			pcpi_rd_reg <= 'bx;
 		end
 	end
 	always @(posedge clk) begin

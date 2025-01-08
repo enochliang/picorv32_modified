@@ -56,7 +56,11 @@ module picorv32 (
 	input clk;
 	input resetn;
 	output reg trap;
-	output reg mem_valid;
+
+	output wire mem_valid;
+	reg mem_valid_reg;
+	assign mem_valid = mem_valid_reg;
+
 	output reg mem_instr;
 	input mem_ready;
 	output reg [31:0] mem_addr;
@@ -439,7 +443,7 @@ module picorv32 (
 			if (!resetn)
 				mem_state <= 0;
 			if (!resetn || mem_ready)
-				mem_valid <= 0;
+				mem_valid_reg <= 0;
 			mem_la_secondword <= 0;
 			prefetched_high_word <= 0;
 		end
@@ -453,13 +457,13 @@ module picorv32 (
 			case (mem_state)
 				0: begin
 					if ((mem_do_prefetch || mem_do_rinst) || mem_do_rdata) begin
-						mem_valid <= !mem_la_use_prefetched_high_word;
+						mem_valid_reg <= !mem_la_use_prefetched_high_word;
 						mem_instr <= mem_do_prefetch || mem_do_rinst;
 						mem_wstrb <= 0;
 						mem_state <= 1;
 					end
 					if (mem_do_wdata) begin
-						mem_valid <= 1;
+						mem_valid_reg <= 1;
 						mem_instr <= 0;
 						mem_state <= 2;
 					end
@@ -471,13 +475,13 @@ module picorv32 (
 					empty_statement;
 					if (mem_xfer) begin
 						if (COMPRESSED_ISA && mem_la_read) begin
-							mem_valid <= 1;
+							mem_valid_reg <= 1;
 							mem_la_secondword <= 1;
 							if (!mem_la_use_prefetched_high_word)
 								mem_16bit_buffer <= mem_rdata[31:16];
 						end
 						else begin
-							mem_valid <= 0;
+							mem_valid_reg <= 0;
 							mem_la_secondword <= 0;
 							if (COMPRESSED_ISA && !mem_do_rdata) begin
 								if (~&mem_rdata[1:0] || mem_la_secondword) begin
@@ -495,7 +499,7 @@ module picorv32 (
 					empty_statement;
 					empty_statement;
 					if (mem_xfer) begin
-						mem_valid <= 0;
+						mem_valid_reg <= 0;
 						mem_state <= 0;
 					end
 				end
