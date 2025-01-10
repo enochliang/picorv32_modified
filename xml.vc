@@ -1,0 +1,14 @@
+--xml-only
+//--timing
+//-O0
+--top-module picorv32_axi
+-Wno-lint
+-Wwarn-MULTIDRIVEN
++1364-2005ext+v
+picorv32.v
+-GCOMPRESSED_ISA=1
+-GENABLE_FAST_MUL=1
+-GENABLE_DIV=1
+-GENABLE_IRQ=1
+-GENABLE_TRACE=1
+--Mdir ast

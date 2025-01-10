@@ -21,10 +21,15 @@ COMPRESSED_ISA = C
 # Add things like "export http_proxy=... https_proxy=..." here
 GIT_ENV = true
 
+ast/Vpicorv32_axi_flatten.xml: testbench.v picorv32.v xml.vc
+	cp rtl/testbench_modified.v testbench.v
+	cp rtl/picorv32_modified.v picorv32.v
+	verilator -f xml_flat.vc
+
 ast/Vpicorv32_axi.xml: testbench.v picorv32.v xml.vc
+	cp rtl/testbench_modified.v testbench.v
+	cp rtl/picorv32_modified.v picorv32.v
 	verilator -f xml.vc
-	cp ast/Vpicorv32_axi.xml /ibex/Verilog_Circuit_Graph_Simulator_v2/ast/
-	cd /ibex/Verilog_Circuit_Graph_Simulator_v2 && python3 AST_Checker.py ast/Vpicorv32_axi.xml 
 
 pysim_ff:
 	cp rtl/picorv32_modified.v ./picorv32.v
@@ -41,6 +46,10 @@ fsim_ff:
 	mkdir ff_value
 	mkdir golden_value
 	make test
+
+fsim:
+	verilator -f fsim.vc
+
 
 test: testbench.vvp firmware/firmware.hex
 	$(VVP) -N $<
